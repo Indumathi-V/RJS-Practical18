@@ -1,21 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1"
-    />
-    <meta
-      name="description"
-      content="Program 18 - React Calculator"
-    />
-    <title>Program 18 - Calculator</title>
-  </head>
-  <body>
-    <noscript>
-      You need to enable JavaScript to run this application.
-    </noscript>
-    <div id="root"></div>
-  </body>
-</html>
+name: Program 18 Autograding
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  autograding:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Check required files
+        run: |
+          test -f src/App.js
+          test -f src/App.test.js
+          test -f src/index.js
+          test -f src/index.css
+          test -f public/index.html
+          test -f package.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check React state usage
+        run: |
+          grep -q "useState" src/App.js
+
+      - name: Check calculator controls
+        run: |
+          grep -q "DEL" src/App.js
+          grep -q "C" src/App.js
+          grep -q "=" src/App.js
+
+      - name: Run calculator tests
+        run: CI=true npm test -- --watchAll=false
+
+      - name: Build React application
+        run: npm run build
